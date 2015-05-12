@@ -1,29 +1,32 @@
 ---
-title: "Inference Course Project"
+title: "Statistical Inference Course Project"
 author: "Chris van Hasselt"
-date: "Monday, October 20, 2014"
+date: "Monday, May 11, 2015"
 output:
   pdf_document:
     latex_engine: xelatex
 ---
+```{r libraries, echo=FALSE }
+# libraries loaded here
 
-# Problem:
+```
 
-The exponential distribution can be simulated in R with *rexp(n, lambda)* where *lambda* is the rate parameter. The mean of exponential distribution is *1/lambda* and the standard deviation is also also *1/lambda*. Set *lambda = 0.2* for all of the simulations. In this simulation, you will investigate the distribution of averages of 40 exponential(0.2)s. Note that you will need to do a thousand or so simulated averages of 40 exponentials.
+# Overview:
 
-Illustrate via simulation and associated explanatory text the properties of the distribution of the mean of 40 exponential(0.2)s.  You should
+The exponential distribution can be simulated in R with *rexp(n, lambda)* where *lambda* is the rate parameter. The mean of exponential distribution is *1/lambda* and the standard deviation is also also *1/lambda*. In this report, I will investigate the distribution of averages of 40 exponentials, when the rate parameter *lambda = 0.2*.
 
-#. Show where the distribution is centered at and compare it to the theoretical center of the distribution.
-#. Show how variable it is and compare it to the theoretical variance of the distribution.
-#. Show that the distribution is approximately normal.
-#. Evaluate the coverage of the confidence interval for 1/lambda: $\bar{X} \pm 1.96\frac{\mathit{s}}{\sqrt[]{n}}$.
+Specifically, I illustrate the properties of the distribution of the mean of 40 exponentials, showing:
+
+#. The sample mean and compare it to the theoretical mean of the distribution;
+#. variability (via variance) with respect to the theoretical variance of the distribution;
+#. that the distribution is approximately normal.
 
 
-# Solution:
+# Simulations:
 
-Prior to answering any questions about the distribution, I will use R to create a matrix of simulated random exponential values based on the given rate.
+Prior to addressing questions about the distribution, I will create a matrix of simulated random exponential values based on the given rate, using R.  In the code sample below, R generates the matrix *sampleMatrix* with 1000 samples of size 40.
 
-```{r}
+```{r intro}
 # lambda is the exponential rate
 lambda <- 0.2
 
@@ -36,12 +39,15 @@ sampleSize     <- 40
 # sampleMatrix is a matrix of all the samples, with sampleSize columns, numSimulations rows.
 sampleMatrix   <- matrix(rexp(numSimulations * sampleSize, rate=lambda), numSimulations)
 
+
 ```
-## Question 1
+
+
+# Sample Mean versus Theoretical Mean:
 
 To show where the distribution is centered and compare to the theortical center of distribution, I use R to compute the mean of means, *xBarEmpirical*.  *xBarTheoretical* is the defined as *1/lambda*, as stated in the problem.  To compare the  
 
-```{r}
+```{r Comparison}
 
 # xBarEmprical is the mean of all sample means
 xBarEmpirical  <- mean(apply(sampleMatrix, 1, mean))
