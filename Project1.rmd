@@ -8,6 +8,7 @@ output:
 ---
 ```{r libraries, echo=FALSE }
 # libraries loaded here
+library(ggplot2)
 
 ```
 
@@ -21,12 +22,15 @@ Specifically, I illustrate the properties of the distribution of the mean of 40 
 #. variability (via variance) with respect to the theoretical variance of the distribution;
 #. that the distribution is approximately normal.
 
+Plots generated in this document are created using the *ggplot2* library.
+
 
 # Simulations:
 
-Prior to addressing questions about the distribution, I will create a matrix of simulated random exponential values based on the given rate, using R.  In the code sample below, R generates the matrix *sampleMatrix* with 1000 samples of size 40.
+To analyze empirical versus theoretical statistics, I will create a data.frame of simulated random exponential values based on the given rate, using R.  In the code below R generates a matrix with 1000 samples of 40 exponentials with lambda value of 0.2, converting it immediately to a data.frame named *dfSamples*.  The intermediate *sampleMatrix* is kept
 
 ```{r intro}
+
 # lambda is the exponential rate
 lambda <- 0.2
 
@@ -34,29 +38,39 @@ lambda <- 0.2
 numSimulations <-1000
 
 # sampleSize is the number of exponential samples per simulation
-sampleSize     <- 40
+sampleSize <- 40
 
-# sampleMatrix is a matrix of all the samples, with sampleSize columns, numSimulations rows.
-sampleMatrix   <- matrix(rexp(numSimulations * sampleSize, rate=lambda), numSimulations)
+# allSamples is list of numSimulations (1000) times sampleSize (40) exponentials, with rate lambda
+allSamples <- rexp(sampleSize*numSimulations, rate=lambda)
 
+# sampleMatrix packages the exponentials as a matrix with numSimulations (1000) rows and sampleSize (40) columns.
+sampleMatrix <- matrix(allSamples, numSimulations)
+
+# dfSamples is a data.frame of all the samples, with sampleSize columns, numSimulations rows.
+dfSamples   <- as.data.frame(sampleMatrix)
 
 ```
-
 
 # Sample Mean versus Theoretical Mean:
 
-To show where the distribution is centered and compare to the theortical center of distribution, I use R to compute the mean of means, *xBarEmpirical*.  *xBarTheoretical* is the defined as *1/lambda*, as stated in the problem.  To compare the  
+To compare the empirical sample mean to the the theoretical mean, I append row means to the data.frame *dfSamples* as *dfSamples$xbar*, and cumulative row means as *dfSamples$xbarCumulative*.
 
-```{r Comparison}
+```{r comparison}
 
-# xBarEmprical is the mean of all sample means
-xBarEmpirical  <- mean(apply(sampleMatrix, 1, mean))
+# dfSamples$xbar is an appended column of row means
+dfSamples$xbar <- apply(dfSamples, 1, mean)
 
-# xBarTheoretical is 1/lambda for an exponential distribution, as stated in the problem
+# dfSamples$xbarCumulative is an appended column of cumulative means
+dfSamples$xbarCumulative <- cumsum(dfSamples$xbar)/(1:numSimulations)
+
+# xBarTheoretical is the theoretical mean for an exponential distribution, as stated in the problem
 xBarTheoretical <- 1 / lambda
 
-xBarDifference <- xBarEmpirical - xBarTheoretical
-xBarDiffPct <- xBarDifference / xBarTheoretical
 
 ```
 
+# Sample Variance versus Theoretical Variance
+
+
+
+# Distribution
