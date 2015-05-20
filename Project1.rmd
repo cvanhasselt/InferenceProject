@@ -30,6 +30,8 @@ Plots generated in this document are created using the *ggplot2* library.
 To analyze empirical versus theoretical statistics, I will create a data.frame of simulated random exponential values based on the given rate, using R.  In the code below R generates a matrix with 1000 samples of 40 exponentials with lambda value of 0.2, converting it immediately to a data.frame named *dfSamples*.  The intermediate *sampleMatrix* is kept
 
 ```{r intro}
+# set random seed, for repeatability
+set.seed(2132)
 
 # lambda is the exponential rate
 lambda <- 0.2
@@ -66,11 +68,25 @@ dfSamples$xbarCumulative <- cumsum(dfSamples$xbar)/(1:numSimulations)
 # xBarTheoretical is the theoretical mean for an exponential distribution, as stated in the problem
 xBarTheoretical <- 1 / lambda
 
+# prepare plot of the cumulative means, demonstrating convergence to the theoretical mean
+g <- ggplot(data.frame(x = 1:numSimulations,y = dfSamples$xbarCumulative),
+            aes(x = x, y = y)) +
+            geom_line() +
+            geom_hline(aes(yintercept=xBarTheoretical,color="red")) +
+            labs(title='Exponential Means: Empirical vs. Theoretical',x='Simulations',y='Means')
+
+# display plot
+g
 
 ```
 
+The plot shows the means of repeated samples of 40 exponentials converging toward the 
+theoretical mean of *1/lambda*, in this case 5. Increasing the number of simulations from 1000 to 10,000 or more demonstrates this convergence more clearly.
+
 # Sample Variance versus Theoretical Variance
 
+The theoretical variance of exponential samples is *1/lambda ^ 2*.   Computing the variance of the samples for each of the one thousand samples.  
 
+# The Distribution of the Means
 
-# Distribution
+We expect that the distribution of the means will be normal, centered around the theoretical mean.  
