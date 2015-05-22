@@ -4,16 +4,16 @@ author: "Chris van Hasselt"
 date: "Monday, May 11, 2015"
 output:
   pdf_document:
+    fig_height: 3.75
+    fig_width: 5
     latex_engine: xelatex
 ---
 ```{r libraries, echo=FALSE }
 # libraries loaded here
 library(ggplot2)
-
 ```
 
 # Overview:
-
 The exponential distribution can be simulated in R with *rexp(n, lambda)* where *lambda* is the rate parameter. The mean of exponential distribution is *1/lambda* and the standard deviation is also also *1/lambda*. In this report, I will investigate the distribution of averages of 40 exponentials, when the rate parameter *lambda = 0.2*.
 
 Specifically, I illustrate the properties of the distribution of the mean of 40 exponentials, showing:
@@ -24,69 +24,109 @@ Specifically, I illustrate the properties of the distribution of the mean of 40 
 
 Plots generated in this document are created using the *ggplot2* library.
 
-
 # Simulations:
+To analyze empirical versus theoretical statistics, I create a data.frame named *dfSamples* of random exponential values based on the given rate, *lambda = 0.2*.  Code available in the Appendix.
 
-To analyze empirical versus theoretical statistics, I will create a data.frame of simulated random exponential values based on the given rate, using R.  In the code below R generates a matrix with 1000 samples of 40 exponentials with lambda value of 0.2, converting it immediately to a data.frame named *dfSamples*.  The intermediate *sampleMatrix* is kept
+```{r introduction,echo=FALSE}
 
-```{r intro}
-# set random seed, for repeatability
-set.seed(2132)
+set.seed(2132)          # set random seed, for repeatability
 
-# lambda is the exponential rate
-lambda <- 0.2
+lambda <- 0.2           # define lambda, the exponential rate
 
-# numSimulations is the number of simulations to perform
-numSimulations <-1000
+numSimulations <- 1000  # numSimulations = number of simulations (1000)
 
-# sampleSize is the number of exponential samples per simulation
-sampleSize <- 40
+sampleSize <- 40        # sampleSize = number of exponentials per simulation (40)
 
-# allSamples is list of numSimulations (1000) times sampleSize (40) exponentials, with rate lambda
+# allSamples is the numSimulations (1000) times sampleSize (40) exponentials
 allSamples <- rexp(sampleSize*numSimulations, rate=lambda)
 
-# sampleMatrix packages the exponentials as a matrix with numSimulations (1000) rows and sampleSize (40) columns.
+# sampleMatrix packages the exponentials as a matrix 
 sampleMatrix <- matrix(allSamples, numSimulations)
 
-# dfSamples is a data.frame of all the samples, with sampleSize columns, numSimulations rows.
+# dfSamples is a data.frame of all the samples
 dfSamples   <- as.data.frame(sampleMatrix)
 
 ```
-
 # Sample Mean versus Theoretical Mean:
+To compare the empirical mean to the the theoretical mean, I calculate row means for data.frame *dfSamples* as *xbar*, and cumulative row means as *xbarCumulative*.  The plot below shows the means of samples of 40 exponentials converging toward the theoretical mean of *1/lambda*, in this case 5, demonstrating asymptotic convergence to the theoretical mean.
+```{r compare_mean, echo=FALSE}
 
-To compare the empirical sample mean to the the theoretical mean, I append row means to the data.frame *dfSamples* as *dfSamples$xbar*, and cumulative row means as *dfSamples$xbarCumulative*.
-
-```{r comparison}
-
-# dfSamples$xbar is an appended column of row means
+# dfSamples$xbar is a column appended of row means
 dfSamples$xbar <- apply(dfSamples, 1, mean)
 
-# dfSamples$xbarCumulative is an appended column of cumulative means
+# dfSamples$xbarCumulative is appended as a column of cumulative means
 dfSamples$xbarCumulative <- cumsum(dfSamples$xbar)/(1:numSimulations)
 
-# xBarTheoretical is the theoretical mean for an exponential distribution, as stated in the problem
-xBarTheoretical <- 1 / lambda
+xbarTheoretical <- 1 / lambda  # the theoretical mean 
 
-# prepare plot of the cumulative means, demonstrating convergence to the theoretical mean
-g <- ggplot(data.frame(x = 1:numSimulations,y = dfSamples$xbarCumulative),
-            aes(x = x, y = y)) +
-            geom_line() +
-            geom_hline(aes(yintercept=xBarTheoretical,color="red")) +
-            labs(title='Exponential Means: Empirical vs. Theoretical',x='Simulations',y='Means')
-
-# display plot
-g
-
+# Prepare plot of cumulative means, demonstrating convergence to the theoretical mean
+meanPlot <- ggplot(data.frame(x = 1:numSimulations,
+                              y = dfSamples$xbarCumulative),
+            aes(x = x, y = y)) + geom_line() +
+            geom_hline(aes(yintercept=xbarTheoretical,
+                           color="red")) +
+                geom_text(aes(750,xbarTheoretical,
+                              label = "mean = 5",
+                              vjust = 1,
+                              hjust = 0)) +
+            labs(title='Exponential Means: Empirical vs. Theoretical',
+                 x='Simulations',y='Means')
+```
+```{r plotConvergence,echo=FALSE}
+# display the plot
+meanPlot
 ```
 
-The plot shows the means of repeated samples of 40 exponentials converging toward the 
-theoretical mean of *1/lambda*, in this case 5. Increasing the number of simulations from 1000 to 10,000 or more demonstrates this convergence more clearly.
 
 # Sample Variance versus Theoretical Variance
 
-The theoretical variance of exponential samples is *1/lambda ^ 2*.   Computing the variance of the samples for each of the one thousand samples.  
+The theoretical variance of exponential samples is *(1/lambda) ^ 2*.  Computing the variance of the samples for the one thousand samples, I plot the rolling value of the variance as *n* increases.  
+
+```{r compare_variance,}
+# Compute variance for each sample of 40 exponentials, and append to  data.frame
+dfSamples$varEmpirical <- apply(dfSamples[,paste("V",1:40,sep="")],1,var) 
+
+# Compute a rolling estimate of variance as the number of samples increases.
+dfSamples$varCumulative <- cumsum(dfSamples$varEmpirical)/(1:numSimulations)
+
+# compute the theoretical variance
+varTheoretical <- (1/lambda) ^ 2 
+
+# Prepate plot 
+varPlot <- ggplot(data.frame(x = 1:numSimulations,
+                             y = dfSamples$varCumulative),
+            aes(x = x, y = y)) +
+            geom_line() +
+            geom_hline(aes(yintercept=varTheoretical,
+                           color="red")) +
+                geom_text(aes(750,varTheoretical,
+                              label = "var = 25",
+                              vjust = 1,
+                              hjust = 0)) +
+            labs(title='Exponential Variance: Empirical vs. Theoretical',
+                 x='Simulations',y='Variance')
+
+# diplay plot
+varPlot
+```
 
 # The Distribution of the Means
-
 We expect that the distribution of the means will be normal, centered around the theoretical mean.  
+
+# Appendix: Code Samples & Plots
+
+## Libraries
+```{r displayLibraries, ref.label='libraries',eval=FALSE }
+
+```
+## Generating Data
+In the code below R generates a 1000 samples of 40 exponentials with lambda value of 0.2, converting it immediately to a data.frame named *dfSamples*.
+```{r displayIntroduction,ref.label='introduction',eval=FALSE}
+
+```
+## Convergence of the Mean
+
+```{r displayCompare_Mean,ref.label='compare_mean',eval=FALSE}
+
+```
+
