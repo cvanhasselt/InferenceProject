@@ -111,22 +111,26 @@ varPlot
 ```
 
 # The Distribution of the Means
-We expect that the distribution of the means will be normal, centered around the theoretical mean. 
+We expect that the distribution of the means will be normal, centered around the theoretical mean. Plotting with relevant density overlaying the histogram, it is apparent that the distribution is approximately normal and centered around the mean.  The true normal distribution
 
 ```{r mean_distribution,echo=FALSE}
 # display a plot of the histogram
-
 xbarDist <- ggplot(data=dfSamples, aes(dfSamples$xbar)) + 
-                geom_histogram(col="darkblue",fill="grey") +
+                geom_histogram(aes(y=..density..),
+                               col="darkblue",fill="grey") +
+                geom_density(alpha=.2, fill="#FF6666") + 
                 geom_vline(aes(xintercept=xbarTheoretical,
                            color="red")) +
-                geom_text(aes(xbarTheoretical,80,
+                geom_text(aes(xbarTheoretical,.5,
                               label = "mean = 5",
                               vjust = 1,
                               hjust = 1.2)) +
+                stat_function(fun = dnorm, arg=list(mean=xbarTheoretical), 
+                              colour = "#FFCC33",
+                              size=1.2) +
                 labs(title='Distribution of Means with Expected Normal Curve',
                      x='Computed Means',
-                     y='Count')
+                     y='Density')
 xbarDist
 
 ```
