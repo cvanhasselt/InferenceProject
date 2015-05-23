@@ -111,7 +111,7 @@ varPlot
 ```
 
 # The Distribution of the Means
-We expect that the distribution of the means will be normal, centered around the theoretical mean. Plotting with relevant density overlaying the histogram, it is apparent that the distribution is approximately normal and centered around the mean.  The true normal distribution
+We expect that the distribution of the means will be normal, centered around the theoretical mean. Plotting with the relevant empirical density overlaying the histogram, it is apparent that the distribution is approximately normal and centered around the mean.  The true normal distribution centered at the given mean is shown as an orange line, while the light pink overlay is the empirical density.
 
 ```{r mean_distribution,echo=FALSE}
 # display a plot of the histogram
@@ -134,8 +134,6 @@ xbarDist <- ggplot(data=dfSamples, aes(dfSamples$xbar)) +
 xbarDist
 
 ```
-
-
 # Appendix: Code Samples & Plots
 
 ## Libraries
@@ -148,8 +146,13 @@ In the code below R generates a 1000 samples of 40 exponentials with lambda valu
 
 ```
 ## Convergence of the Mean
-The code below is used to compute the means, and prepare the plot of the convergence of the mean.
+The code below is used to compute the means for each row of 40 samples, and prepare the plot demonstrating asymptotic convergence of the mean.
 ```{r displayCompare_Mean,ref.label='compare_mean',eval=FALSE}
 
 ```
 
+## The Distribution of the Means
+The code below creates the plot of the empirical mean as a histogram, with a density function overlaying it, and the true normal distribution displayed as well. The plot shows that the empirical distribution is approximately normal.
+```{r displayCompare_Mean,ref.label='mean_distribution',eval=FALSE}
+
+```
