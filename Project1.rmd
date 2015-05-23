@@ -1,7 +1,7 @@
 ---
 title: "Statistical Inference Course Project"
 author: "Chris van Hasselt"
-date: "Monday, May 11, 2015"
+date: "Monday, May 24, 2015"
 output:
   pdf_document:
     fig_height: 3.75
@@ -80,9 +80,9 @@ meanPlot
 
 # Sample Variance versus Theoretical Variance
 
-The theoretical variance of exponential samples is *(1/lambda) ^ 2*.  Computing the variance of the samples for the one thousand samples, I plot the rolling value of the variance as *n* increases.  
+The theoretical variance of exponential samples is *(1/lambda) ^ 2*.  Computing the variance of the samples for the one thousand samples, I plot the rolling value of the variance as *n* increases. Plotting this with the expected theoretical value of the variance demonstrates the asymptotic convergence of the variance.
 
-```{r compare_variance,}
+```{r compare_variance,echo=FALSE}
 # Compute variance for each sample of 40 exponentials, and append to  data.frame
 dfSamples$varEmpirical <- apply(dfSamples[,paste("V",1:40,sep="")],1,var) 
 
@@ -111,7 +111,26 @@ varPlot
 ```
 
 # The Distribution of the Means
-We expect that the distribution of the means will be normal, centered around the theoretical mean.  
+We expect that the distribution of the means will be normal, centered around the theoretical mean. 
+
+```{r mean_distribution,echo=FALSE}
+# display a plot of the histogram
+
+xbarDist <- ggplot(data=dfSamples, aes(dfSamples$xbar)) + 
+                geom_histogram(col="darkblue",fill="grey") +
+                geom_vline(aes(xintercept=xbarTheoretical,
+                           color="red")) +
+                geom_text(aes(xbarTheoretical,80,
+                              label = "mean = 5",
+                              vjust = 1,
+                              hjust = 1.2)) +
+                labs(title='Distribution of Means with Expected Normal Curve',
+                     x='Computed Means',
+                     y='Count')
+xbarDist
+
+```
+
 
 # Appendix: Code Samples & Plots
 
@@ -125,7 +144,7 @@ In the code below R generates a 1000 samples of 40 exponentials with lambda valu
 
 ```
 ## Convergence of the Mean
-
+The code below is used to compute the means, and prepare the plot of the convergence of the mean.
 ```{r displayCompare_Mean,ref.label='compare_mean',eval=FALSE}
 
 ```
