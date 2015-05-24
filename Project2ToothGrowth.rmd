@@ -1,0 +1,76 @@
+---
+title: 'Statistical Inference Project:  Tooth Growth'
+author: "Chris van Hasselt"
+date: "Sunday, May 24, 2015"
+output:
+  pdf_document:
+    fig_height: 3.75
+    fig_width: 5
+    latex_engine: xelatex
+---
+```{r libraries,echo=FALSE}
+library(datasets)
+library(ggplot2)
+
+```
+# Overview
+This report examines tooth growth data supplied in the R datasets library.  As described in the help, the *ToothGrowth* dataset concerns the "length of odontoblasts (teeth) in each of 10 guinea pigs at each of three dose levels of Vitamin C (0.5, 1, and 2 mg) with each of two delivery methods (orange juice or ascorbic acid)." *Note: The help file did not indicate units for the tooth length; this report will refer to the measurement as "units".*
+
+# Basic Exploratory Analysis
+The data is a data.frame with 60 observations on 3 variables:
+
+#. _len_: tooth length
+#. _supp_: supplement type, VC (vitamin C) or orange juice (OJ)
+#. _dose_: dose in milligrams
+```{r exp_dataview,echo=FALSE}
+head(ToothGrowth,n=5)
+
+```
+A summary gives some indication of the overall variability of the data.
+```{r exp_summary,echo=FALSE}
+summary(ToothGrowth)
+
+```
+
+Plotting the data indicates some variations in the data to explore.
+```{r exp_plot}
+plot(ToothGrowth)
+
+```
+
+Looking at thie plots, it appears that there is an upward trend associating tooth length and the dosage of vitamin C, regardless of supplement choice.  A question to consider is whether the different supplements promote a difference in growth, if one supplement promotes more growth than the other.  Is the variation between growth associated with the supplement chosen, or are we simply seeing natural variation?
+
+# Tidying Data
+For convenient analysis, I will group the guinea pig data into separate groups by supplement:
+
+```{r tidy_groupings}
+# group data by supplement factor
+VCpigs <- ToothGrowth[ToothGrowth$supp=="VC",]
+OJpigs <- ToothGrowth[ToothGrowth$supp=="OJ",]
+
+```
+# Analysis
+
+The mean of the two groups differs by about 4 units, without considering supplement dosage.  
+
+```{r analysis_means}
+# calculate means and show the absolute difference in mean.
+VCxbar <- mean(VCpigs$len)
+OJxbar <- mean(OJpigs$len)
+
+abs(VCxbar - OJxbar)
+```
+
+The null hypothesis is that this difference is due to normal variation. Because there are a small number of observations (30) for each supplement, the t-test is the right computation to assess the validity of the hypothesis.  And because we are only interested at this time in assessing whether the difference is attributable to normal variation or the supplement, a two-sided t-test should be used.  The data are not paired, and we
+
+```{r analysis_ttest}
+t.test(OJpigs$len - VCpigs$len, paired=FALSE,var.equal=FALSE)$conf
+
+```
+
+The confidence interval does not contain zero, so we can rule out the possibility that the difference in means is due to normal variation, rejecting the null hypotheis.  Put another way, the difference in tooth length is attributable to the choice of supplement.
+
+# Conclusions
+The analysis allows us to assess the efficacy of orange juice versus a vitamin C supplement in promoting tooth growth, with orange juice leading to greater tooth length.  However, the differential between the two supplements may be dose dependent as well.  Further analysis as demonstrated in this report could allow us to assess the effectiveness of each supplement at each dose.  
+
+
