@@ -1,7 +1,7 @@
 ---
 title: "Statistical Inference Course Project"
 author: "Chris van Hasselt"
-date: "Monday, May 24, 2015"
+date: "Sunday, May 24, 2015"
 output:
   pdf_document:
     fig_height: 3.75
@@ -12,22 +12,17 @@ output:
 # libraries loaded here
 library(ggplot2)
 ```
-
 # Overview:
-The exponential distribution can be simulated in R with *rexp(n, lambda)* where *lambda* is the rate parameter. The mean of exponential distribution is *1/lambda* and the standard deviation is also also *1/lambda*. In this report, I will investigate the distribution of averages of 40 exponentials, when the rate parameter *lambda = 0.2*.
+The exponential distribution is simulated in R with *rexp(n, lambda)* where *lambda* is the rate parameter. The mean of the exponential distribution is *1/lambda* and the standard deviation is *1/lambda*.  This report examines the distribution of averages of 40 exponentials with rate *lambda = 0.2*, using plots generated with the *ggplot2* library, illustrating important properties of the distribution:
 
-Specifically, I illustrate the properties of the distribution of the mean of 40 exponentials, showing:
-
-#. The sample mean and compare it to the theoretical mean of the distribution;
-#. variability (via variance) with respect to the theoretical variance of the distribution;
-#. that the distribution is approximately normal.
-
-Plots generated in this document are created using the *ggplot2* library.
+#. The sample mean converges to the theoretical mean of the distribution;
+#. The sample variance converges to the theoretical variance of the distribution;
+#. The distribution is approximately normal.
 
 # Simulations:
-To analyze empirical versus theoretical statistics, I create a data.frame named *dfSamples* of random exponential values based on the given rate, *lambda = 0.2*.  Code available in the Appendix.
+To analyze empirical versus theoretical statistics, I create a data.frame named *dfSamples* of random exponentials with rate *lambda = 0.2*.  Code available in appendices.
 
-```{r introduction,echo=FALSE}
+```{r introduction,echo=FALSE, warning=FALSE}
 
 set.seed(2132)          # set random seed, for repeatability
 
@@ -47,10 +42,10 @@ sampleMatrix <- matrix(allSamples, numSimulations)
 dfSamples   <- as.data.frame(sampleMatrix)
 
 ```
-# Sample Mean versus Theoretical Mean:
-To compare the empirical mean to the the theoretical mean, I calculate row means for data.frame *dfSamples* as *xbar*, and cumulative row means as *xbarCumulative*.  The plot below shows the means of samples of 40 exponentials converging toward the theoretical mean of *1/lambda*, in this case 5, demonstrating asymptotic convergence to the theoretical mean.
-```{r compare_mean, echo=FALSE}
 
+# Sample Mean versus Theoretical Mean:
+Comparing the empirical mean to the theoretical mean, I calculate row means and cumulative row means for data.frame *dfSamples*.  The plot below shows the sample means of 40 exponentials converging to the theoretical mean of *1/lambda = 5*, demonstrating asymptotic convergence.
+```{r compare_mean, echo=FALSE, warning=FALSE}
 # dfSamples$xbar is a column appended of row means
 dfSamples$xbar <- apply(dfSamples, 1, mean)
 
@@ -71,18 +66,15 @@ meanPlot <- ggplot(data.frame(x = 1:numSimulations,
                               hjust = 0)) +
             labs(title='Exponential Means: Empirical vs. Theoretical',
                  x='Simulations',y='Means')
-```
-```{r plotConvergence,echo=FALSE}
+
 # display the plot
 meanPlot
 ```
 
-
 # Sample Variance versus Theoretical Variance
+Plotting the rolling value of the variance as *n* increases, we see it converging to the expected theoretical variance *(1/lambda) ^ 2 = 25* (red line), demonstrating asymptotic convergence of the variance.
 
-The theoretical variance of exponential samples is *(1/lambda) ^ 2*.  Computing the variance of the samples for the one thousand samples, I plot the rolling value of the variance as *n* increases. Plotting this with the expected theoretical value of the variance demonstrates the asymptotic convergence of the variance.
-
-```{r compare_variance,echo=FALSE}
+```{r compare_variance,echo=FALSE, warning=FALSE}
 # Compute variance for each sample of 40 exponentials, and append to  data.frame
 dfSamples$varEmpirical <- apply(dfSamples[,paste("V",1:40,sep="")],1,var) 
 
@@ -109,15 +101,16 @@ varPlot <- ggplot(data.frame(x = 1:numSimulations,
 # diplay plot
 varPlot
 ```
+\pagebreak
 
 # The Distribution of the Means
-We expect that the distribution of the means will be normal, centered around the theoretical mean. Plotting with the relevant empirical density overlaying the histogram, it is apparent that the distribution is approximately normal and centered around the mean.  The true normal distribution centered at the given mean is shown as an orange line, while the light pink overlay is the empirical density.
-
+Plotting the histogram with its empirical density overlaying (pink) shows the distribution is approximately normal, centered around the theoretical mean.  The normal distribution (orange) is also shown.
 ```{r mean_distribution,echo=FALSE}
-# display a plot of the histogram
+# display a plot of the histogram;
 xbarDist <- ggplot(data=dfSamples, aes(dfSamples$xbar)) + 
                 geom_histogram(aes(y=..density..),
-                               col="darkblue",fill="grey") +
+                               col="darkblue",fill="grey",
+                               binwidth=diff(range(dfSamples$xbar))/30) +
                 geom_density(alpha=.2, fill="#FF6666") + 
                 geom_vline(aes(xintercept=xbarTheoretical,
                            color="red")) +
@@ -131,28 +124,35 @@ xbarDist <- ggplot(data=dfSamples, aes(dfSamples$xbar)) +
                 labs(title='Distribution of Means with Expected Normal Curve',
                      x='Computed Means',
                      y='Density')
+# plot the distribution
 xbarDist
-
 ```
-# Appendix: Code Samples & Plots
+\pagebreak
+
+# Appendices: Code Samples & Plots
 
 ## Libraries
-```{r displayLibraries, ref.label='libraries',eval=FALSE }
+```{r display_libraries, ref.label='libraries',eval=FALSE }
 
 ```
 ## Generating Data
 In the code below R generates a 1000 samples of 40 exponentials with lambda value of 0.2, converting it immediately to a data.frame named *dfSamples*.
-```{r displayIntroduction,ref.label='introduction',eval=FALSE}
+```{r display_introduction,ref.label='introduction',eval=FALSE}
 
 ```
 ## Convergence of the Mean
-The code below is used to compute the means for each row of 40 samples, and prepare the plot demonstrating asymptotic convergence of the mean.
-```{r displayCompare_Mean,ref.label='compare_mean',eval=FALSE}
+The code below computes the means for each row of 40 samples, and prepares the plot demonstrating asymptotic convergence of the mean.
+```{r display_compare_mean,ref.label='compare_mean',eval=FALSE}
+
+```
+## Convergence of the Variance
+The code below is computes the variance for each row of 40 samples, and prepares the plot demonstrating asymptotic convergence of the mean.
+```{r display_compare_variance,ref.label='compare_variance',eval=FALSE}
 
 ```
 
 ## The Distribution of the Means
 The code below creates the plot of the empirical mean as a histogram, with a density function overlaying it, and the true normal distribution displayed as well. The plot shows that the empirical distribution is approximately normal.
-```{r displayCompare_Mean,ref.label='mean_distribution',eval=FALSE}
+```{r display_mean_distribution,ref.label='mean_distribution',eval=FALSE}
 
 ```
